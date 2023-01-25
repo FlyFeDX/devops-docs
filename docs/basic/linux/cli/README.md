@@ -16,13 +16,7 @@
 
 ### Docker
 
-- [Docker 入门](docs/basic/docker/docker-quickstart.md)
-- [Docker 原理](docs/basic/docker/docker-theory.md)
-- [Dockerfile 指南](docs/basic/docker/docker-dockerfile.md)
-
 ### Kubernetes
-
-- [Kubernetes 应用指南](docker/basic/kubernetes/kubernetes.md)
 
 ## 📖 FeDX 实践
 
