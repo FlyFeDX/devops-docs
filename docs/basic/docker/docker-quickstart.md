@@ -5,6 +5,8 @@
 - [一、Docker 的简介](#一docker-的简介)
 - [二、Docker 隔离原理](#二docker-隔离原理)
 - [三、Docker 常用命令](#三docker-常用命令)
+- [四、Docker 网络互通](#四docker-网络互通)
+
 - [参考资料](#参考资料)
 
 <!-- /TOC -->
@@ -122,8 +124,8 @@ docker rmi d4c
 ```
 // 从镜像启动容器，即运行容器化的应用
 // 常用参数
-// --it：运行完成之后开启一个交互式的Shell
-// --d: 让容器在后台运行
+// -it：运行完成之后开启一个交互式的Shell
+// -d: 让容器在后台运行
 // --name: 为容器起一个名字
 // --rm: 不保存容器，运行完毕自动清除
 docker run
@@ -132,7 +134,9 @@ docker run -d nginx:alpine # 后台运行Nginx
 docker run -d --name red_srv redis # 后台运行Redis
 docker run -it --name ubuntu 2e6 sh # 使用IMAGE ID，登录Ubuntu18.04
 
-// 查看容器的运行状态
+// 列出正在运行的容器
+// 常用参数：
+// -a: 列出所有容器，包括已经停止的容器
 docker ps
 
 // 在容器内执行另一个程序
@@ -146,6 +150,52 @@ docker start
 
 // 彻底删除容器
 docker rm
+```
+
+### 常用与外界互联互通的命令
+
+```
+// 可以在容器和主机之间互相拷贝文件，适合简单的数据交换
+docker cp
+
+docker cp a.txt 062:/tmp
+docker cp 062:/tmp/a.txt ./b.txt
+
+// 共享主机上的文件
+// 是以 Redis 为例，启动容器，使用 -v 参数把本机的“/tmp”目录挂载到容器里的“/tmp”目录，也就是说让容器共享宿主机的“/tmp”目录
+docker run -d --rm -v /tmp:/tmp redis
+```
+
+## 四、Docker 网络互通
+
+Docker 提供了三种网络模式，分别是 null、host 和 bridge。
+
+### null
+
+最简单的模式，也就是没有网络，但允许其他的网络插件来自定义网络连接。
+
+### host
+
+意思是直接使用宿主机网络，相当于去掉了容器的网络隔离（其他隔离依然保留），所有的容器会共享宿主机的 IP 地址和网卡。这种模式没有中间层，自然通信效率高，但缺少了隔离，运行太多的容器也容易导致端口冲突。
+
+host 模式需要在 docker run 时使用 --net=host 参数，下面就用这个参数启动 Nginx：
+
+```
+docker run -d --rm --net=host nginx:alpine
+```
+
+### bridge
+
+也就是桥接模式，它有点类似现实世界里的交换机、路由器，只不过是由软件虚拟出来的，容器和宿主机再通过虚拟网卡接入这个网桥（图中的 docker0），那么它们之间也就可以正常的收发网络数据包了。不过和 host 模式相比，bridge 模式多了虚拟网桥和网卡，通信效率会低一些。
+
+下面我们启动两个容器 Nginx 和 Redis，就像刚才说的，没有特殊指定就会使用 bridge 模式：
+
+```
+docker run -d --rm nginx:alpine # 默认使用桥接模式
+docker run -d --rm redis # 默认使用桥接模式
+
+// 查看容器的 ip 地址
+docker inspect xxx |grep IPAddress
 ```
 
 ## 参考资料
