@@ -22,7 +22,7 @@
 
 ### Kubernetes
 
-- [Kubernetes 应用指南](docker/basic/kubernetes/kubernetes.md)
+- [Kubernetes 应用指南](docs/basic/kubernetes/kubernetes.md)
 
 ## 📖 FeDX 实践
 
